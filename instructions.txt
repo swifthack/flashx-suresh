@@ -1,0 +1,119 @@
+------------------------------------------
+STEP A - Compile and deploy smart contracts
+
+1. Compile and Deploy smart contract files  (available in flashx-suresh)
+
+CustodialWallet.sol
+CustodialWalletFactory.sol
+TestUSDC.sol
+
+2. copy the .json files from artefacts to /abi folder under "userdata"
+
+3. Download backend code from flashx-suresh and Copy backend api code to your server.js (userdata.js or userinfo.js --> i dont remember )
+
+Better to follow the structure as defined in "backend" folder
+
+server.js
+    routes
+        walletRoutes.js
+    abi
+        CustodialWallet.json
+        CustdoialWalletFactory.json
+        TestUSDC.json
+
+inside server.js add two line -->
+    const walletRoutes = require('./routes/walletRoutes');
+    app.use('/wallets', walletRoutes);
+
+all apis will be accessible only via /wallets/....
+
+--------------------------------------------------------------------------------
+STEP B: Use postman to test the api's using this structure. Keep the output copied as per below
+
+IMPORTANT - at point #4, you need ETH tokens for executing a transaction. Give the owner address generated at #1 to Srirangam and ask him to transfer 0.05 ETH to this. 
+You can execute #4 only after you get ETH tokens.
+
+
+1. Create owner wallet address (simulating that public address containing stable coins)
+
+curl --location 'http://localhost:3001/wallets/createOwnerAddress' \
+--data ''
+
+    "address": "0x86D2153139501B4A5e8374873508B4395649f163",
+    "privateKey": "0x05bd4f6022f0a260f34b038a34b62516dd59b80423260b4b0b0997bc9f15c336"
+
+2. mint tokens and add to the owner wallet address 
+
+curl --location 'http://localhost:3001/wallets/mint' \
+--header 'Content-Type: application/json' \
+--data '{
+    "toAddress":"0x86D2153139501B4A5e8374873508B4395649f163",
+    "amount":"10000"
+}'
+
+3. check balance 
+
+curl --location 'http://localhost:3001/wallets/0x86D2153139501B4A5e8374873508B4395649f163/balance' \
+--data ''
+
+4. approve - owner can have 10000 USDC, but can only approve a certain amount to be deposited. 
+hence owner can initaite an approve request with specified amount
+
+curl --location 'http://localhost:3001/wallets/approve' \
+--header 'Content-Type: application/json' \
+--data '{
+    "ownerWallet":"0x86D2153139501B4A5e8374873508B4395649f163",
+    "amount":"500",
+    "ownerPrivateKey":"0x05bd4f6022f0a260f34b038a34b62516dd59b80423260b4b0b0997bc9f15c336"
+}'
+
+-- owner wallet requires ETH to perform the transaction 
+Approving VASP (0x5e3eB89b07C73C283914d251f2B8cf57FeCe714e) to spend USDC from Owner (0x86D2153139501B4A5e8374873508B4395649f163)...
+✅ Approval complete. Allowance: 500.0
+
+
+5. Create custodial wallet --  basically this will be unique per currency type per owner. If new token type is required, 
+then create new ERC 20 token and change the createCustodyWallet code
+
+curl --location 'http://localhost:3001/wallets/createCustodialWallet' \
+--header 'Content-Type: application/json' \
+--data '{
+   "ownerAddress":"0x86D2153139501B4A5e8374873508B4395649f163"
+}'
+
+custody wallet address = 0xC7C92628E9298F031dEE197879284fD41904ED68
+
+--0x7392d1aa1aa2add7b6a63afb46234d91a28c5ea561cc4f3233a658d566deb6c7
+
+6. Deposit from owner wallet to custodial wallet 
+    Try 100
+Transferring 100 USDC from 0x86D2153139501B4A5e8374873508B4395649f163 to 0xC7C92628E9298F031dEE197879284fD41904ED68
+Allowance: 400.0, Balance: 10000.0
+        
+        check balance of custodial wallet  0xB7B450ED7237c395B060cABaecad86E7dd7ff762
+
+        "balance shows 100 "balance": "100.0".. 
+        Owner approved 500 from their original 10000 out of which transferred 100
+
+    Try 600
+        Transferring 600 USDC from 0x00bcBfC5656b9042fFAdFb4eb6582147EAb71F9D to 0xB7B450ED7237c395B060cABaecad86E7dd7ff762
+        Allowance: 400.0, Balance: 9900.0
+
+        should send a response back to user : "error": "Insufficient allowance"
+
+------------------------------------------------------------
+Step C: 
+
+For UI integration which we will discuss later
+
+I will create a separate screen for B1, B2, B3, B4
+
+ 
+
+Journey starts like this.
+
+User is using some DEX portal like Coinbase or Binance and to simulate this I will create a separate UI
+In this UI, we will create B1, B2, B3 and B4
+
+User then comes to bank and ask to open custodial account. For this we will use the bank portal Christus is integrating. 
+In this we will create custodial wallet B5, and ask user to transfer from other UI (DEX portal) to this bank portal (FlashX)
