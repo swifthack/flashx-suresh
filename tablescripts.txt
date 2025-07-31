@@ -1,0 +1,269 @@
+-- Table: public.Customers
+
+-- DROP TABLE IF EXISTS public."Customers";
+
+CREATE TABLE IF NOT EXISTS public."Customers"
+(
+    "CUST_ID" text COLLATE pg_catalog."default" NOT NULL,
+    "UserName" text COLLATE pg_catalog."default",
+    email text COLLATE pg_catalog."default",
+    organization text COLLATE pg_catalog."default",
+    "GLEI" text COLLATE pg_catalog."default",
+    status text COLLATE pg_catalog."default",
+    wallets integer,
+    last_login timestamp with time zone,
+    CONSTRAINT "Customers_pkey" PRIMARY KEY ("CUST_ID")
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public."Customers"
+    OWNER to swifthackdbuser;
+
+-- Table: public.amount_transfers
+
+-- DROP TABLE IF EXISTS public.amount_transfers;
+
+CREATE TABLE IF NOT EXISTS public.amount_transfers
+(
+    id integer NOT NULL DEFAULT nextval('amount_transfers_id_seq'::regclass),
+    user_name character varying(100) COLLATE pg_catalog."default" NOT NULL,
+    from_address character varying(100) COLLATE pg_catalog."default" NOT NULL,
+    to_address character varying(100) COLLATE pg_catalog."default" NOT NULL,
+    amount numeric(20,6) NOT NULL,
+    allowance numeric(20,6) NOT NULL,
+    balance numeric(20,6) NOT NULL,
+    tx_hash character varying(100) COLLATE pg_catalog."default" NOT NULL,
+    tx_date timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT amount_transfers_pkey PRIMARY KEY (id)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.amount_transfers
+    OWNER to swifthackdbuser;
+-- Table: public.beneficiary_vasp_wallet_validation
+
+-- DROP TABLE IF EXISTS public.beneficiary_vasp_wallet_validation;
+
+CREATE TABLE IF NOT EXISTS public.beneficiary_vasp_wallet_validation
+(
+    id integer NOT NULL DEFAULT nextval('beneficiary_vasp_wallet_validation_id_seq'::regclass),
+    vasp_legal_name character varying COLLATE pg_catalog."default",
+    vasp_jurisdiction character varying COLLATE pg_catalog."default",
+    vasp_registration_id character varying COLLATE pg_catalog."default",
+    wallet_address character varying COLLATE pg_catalog."default",
+    blockchain_type character varying COLLATE pg_catalog."default",
+    wallet_tag character varying COLLATE pg_catalog."default",
+    wallet_risk_score integer,
+    beneficiary_name character varying COLLATE pg_catalog."default",
+    beneficiary_id character varying COLLATE pg_catalog."default",
+    address_format_valid boolean,
+    sanctions_check_result boolean,
+    travel_rule_integration character varying COLLATE pg_catalog."default",
+    kyc_level character varying COLLATE pg_catalog."default",
+    transaction_purpose character varying COLLATE pg_catalog."default",
+    expected_volume numeric(20,8),
+    reconciliation_log character varying COLLATE pg_catalog."default",
+    vasp_directory_listings character varying COLLATE pg_catalog."default",
+    CONSTRAINT beneficiary_vasp_wallet_validation_pkey PRIMARY KEY (id)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.beneficiary_vasp_wallet_validation
+    OWNER to swifthackdbuser;
+
+-- Table: public.custodial_wallets
+
+-- DROP TABLE IF EXISTS public.custodial_wallets;
+
+CREATE TABLE IF NOT EXISTS public.custodial_wallets
+(
+    id integer NOT NULL DEFAULT nextval('custodial_wallets_id_seq'::regclass),
+    username text COLLATE pg_catalog."default" NOT NULL,
+    owner_address text COLLATE pg_catalog."default" NOT NULL,
+    coin_type text COLLATE pg_catalog."default" NOT NULL,
+    vasp_user text COLLATE pg_catalog."default",
+    wallet_address text COLLATE pg_catalog."default" NOT NULL,
+    txn_date timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    tx_hash text COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT custodial_wallets_pkey PRIMARY KEY (id)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.custodial_wallets
+    OWNER to swifthackdbuser;
+
+-- Table: public.deposits_withdrawals
+
+-- DROP TABLE IF EXISTS public.deposits_withdrawals;
+
+CREATE TABLE IF NOT EXISTS public.deposits_withdrawals
+(
+    id integer NOT NULL DEFAULT 1001,
+    customer_id text COLLATE pg_catalog."default" NOT NULL,
+    customer_name text COLLATE pg_catalog."default" NOT NULL,
+    wallet_address text COLLATE pg_catalog."default" NOT NULL,
+    action_performed text COLLATE pg_catalog."default" NOT NULL,
+    stablecoin_currency text COLLATE pg_catalog."default" NOT NULL,
+    amount numeric(20,2) NOT NULL,
+    CONSTRAINT deposits_withdrawals_pkey PRIMARY KEY (id)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.deposits_withdrawals
+    OWNER to swifthackdbuser;
+
+-- Table: public.lp_currency_info
+
+-- DROP TABLE IF EXISTS public.lp_currency_info;
+
+CREATE TABLE IF NOT EXISTS public.lp_currency_info
+(
+    protocol_name character varying COLLATE pg_catalog."default" NOT NULL,
+    lp_currency character varying COLLATE pg_catalog."default",
+    speed character varying COLLATE pg_catalog."default",
+    cost character varying COLLATE pg_catalog."default",
+    vasp_compatible boolean,
+    bridge_support character varying COLLATE pg_catalog."default",
+    notes character varying COLLATE pg_catalog."default",
+    CONSTRAINT lp_currency_info_pkey PRIMARY KEY (protocol_name)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.lp_currency_info
+    OWNER to swifthackdbuser;
+
+
+-- Table: public.mint_transactions
+
+-- DROP TABLE IF EXISTS public.mint_transactions;
+
+CREATE TABLE IF NOT EXISTS public.mint_transactions
+(
+    id integer NOT NULL DEFAULT nextval('mint_transactions_id_seq'::regclass),
+    username text COLLATE pg_catalog."default" NOT NULL,
+    to_address text COLLATE pg_catalog."default" NOT NULL,
+    amount numeric(20,6) NOT NULL,
+    coin_type text COLLATE pg_catalog."default" NOT NULL,
+    txn_date timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    tx_hash text COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT mint_transactions_pkey PRIMARY KEY (id)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.mint_transactions
+    OWNER to swifthackdbuser;
+
+
+-- Table: public.owner_addresses
+
+-- DROP TABLE IF EXISTS public.owner_addresses;
+
+CREATE TABLE IF NOT EXISTS public.owner_addresses
+(
+    id integer NOT NULL DEFAULT nextval('owner_addresses_id_seq'::regclass),
+    username text COLLATE pg_catalog."default" NOT NULL,
+    address text COLLATE pg_catalog."default" NOT NULL,
+    private_key text COLLATE pg_catalog."default" NOT NULL,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT owner_addresses_pkey PRIMARY KEY (id),
+    CONSTRAINT owner_addresses_address_key UNIQUE (address)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.owner_addresses
+    OWNER to swifthackdbuser;
+
+-- Table: public.transactions
+
+-- DROP TABLE IF EXISTS public.transactions;
+
+CREATE TABLE IF NOT EXISTS public.transactions
+(
+    transaction_id integer NOT NULL,
+    payer_name text COLLATE pg_catalog."default",
+    payer_address text COLLATE pg_catalog."default",
+    payer_bank text COLLATE pg_catalog."default",
+    stablecoin_type text COLLATE pg_catalog."default",
+    amount text COLLATE pg_catalog."default",
+    payee_name text COLLATE pg_catalog."default",
+    payee_address text COLLATE pg_catalog."default",
+    payee_bank text COLLATE pg_catalog."default",
+    transaction_date timestamp with time zone,
+    transaction_completion_date timestamp with time zone,
+    transaction_status timestamp with time zone,
+    CONSTRAINT transactions_pkey PRIMARY KEY (transaction_id)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.transactions
+    OWNER to swifthackdbuser;
+
+-- Table: public.users
+
+-- DROP TABLE IF EXISTS public.users;
+
+CREATE TABLE IF NOT EXISTS public.users
+(
+    user_id character varying COLLATE pg_catalog."default",
+    role character varying COLLATE pg_catalog."default",
+    created_on timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    user_name character varying COLLATE pg_catalog."default"
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.users
+    OWNER to swifthackdbuser;
+
+
+-- Table: public.wallet_approvals
+
+-- DROP TABLE IF EXISTS public.wallet_approvals;
+
+CREATE TABLE IF NOT EXISTS public.wallet_approvals
+(
+    id integer NOT NULL DEFAULT nextval('wallet_approvals_id_seq'::regclass),
+    user_name character varying(100) COLLATE pg_catalog."default" NOT NULL,
+    tx_date timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    amount numeric(20,6) NOT NULL,
+    tx_hash character varying(100) COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT wallet_approvals_pkey PRIMARY KEY (id)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.wallet_approvals
+    OWNER to swifthackdbuser;
+
+-- Table: public.wallets
+
+-- DROP TABLE IF EXISTS public.wallets;
+
+CREATE TABLE IF NOT EXISTS public.wallets
+(
+    wallet_id text COLLATE pg_catalog."default" NOT NULL,
+    owner text COLLATE pg_catalog."default",
+    wallet_address text COLLATE pg_catalog."default",
+    stablecoin_currency text COLLATE pg_catalog."default",
+    status text COLLATE pg_catalog."default",
+    created_by text COLLATE pg_catalog."default",
+    created_on timestamp with time zone,
+    balance numeric(20,2),
+    approvers text COLLATE pg_catalog."default",
+    approvals_required integer,
+    CONSTRAINT "Wallets_pkey" PRIMARY KEY (wallet_id)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.wallets
+    OWNER to swifthackdbuser;
